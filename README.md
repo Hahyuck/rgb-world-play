@@ -6,4 +6,4 @@
 - `index.html` = 최신 오프라인 단일 파일 빌드(three.js·이미지·효과음 인라인). 배경음악은 `assets/bgm/`.
 - `builds/vN.html` = 버전별 빌드(V0.N). 목록은 `builds/index.html`.
 - 소스는 비공개 저장소에서 관리합니다.
-- 현재 버전: v83
+- 현재 버전: v84
