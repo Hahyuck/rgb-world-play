@@ -91,6 +91,8 @@ body.drone #status, body.drone .pill, body.drone #decoBtn, body.wheeling #decoBt
 #fire .fhint{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);font-style:normal;font-size:8px;color:var(--stone);white-space:nowrap}
 #fire.held{background:var(--snow);color:var(--ink)} #fire.held small{color:var(--ash)}
 #fire.aim{border-style:dashed}
+#fire.vehw .fhint{display:none!important}   /* 방사포·드론·전차: 끌어서 교체 없음 */
+#fire.vehw #fireA{font-size:12px;color:var(--snow);letter-spacing:.04em}
 #wheel{position:fixed;inset:0;pointer-events:none;z-index:6}
 #wheel .slot{position:fixed;transform:translate(-50%,-50%);width:62px;height:46px;display:grid;place-content:center;gap:1px;text-align:center;
   background:rgba(42,35,39,.94);border:1px solid var(--stone);font-family:var(--ui);font-size:10px;color:var(--snow)}
@@ -119,6 +121,10 @@ body.drone #status, body.drone .pill, body.drone #decoBtn, body.wheeling #decoBt
 @media (max-width:460px){#padInfo:has(.ml){font-size:12px;gap:3px 10px;padding:7px 10px}}
 #padInfo .ml:last-child{grid-column:1/-1;text-align:center}
 @media (min-width:700px){#padInfo:has(.ml){font-size:15px;grid-template-columns:repeat(4,auto)}}
+/* v57: 방사포 정보는 상자 없이 글자 한 줄(가운데 시야를 가리지 않게) */
+#padInfo:has(.ml1){display:block;padding:0;background:none;border:0;font-family:var(--ko,var(--ui));font-size:12px;letter-spacing:0;white-space:nowrap;color:var(--bone);text-shadow:0 1px 0 var(--ink),1px 0 0 var(--ink),-1px 0 0 var(--ink),0 -1px 0 var(--ink)}
+#padInfo .ml1 b{font-weight:600;color:var(--snow)}
+@media (max-width:380px){#padInfo:has(.ml1){font-size:11px}}
 #pad .padgrid{display:grid;grid-template-columns:repeat(2,auto);gap:6px;pointer-events:auto}
 #pad .btn{padding:9px 8px;font-size:10px;min-width:60px}
 body.gunner #pad .btn{font-size:13px;padding:10px 12px;min-width:78px}
@@ -359,7 +365,7 @@ body.fieldtalk #talkCh{top:56%}
 #actFix.off{background:rgba(42,35,39,.85);color:var(--stone);border-color:var(--ash);font-weight:400}
 #actFix:active{transform:translateY(1px)}
 body.coarse .worldbtn{pointer-events:none}
-body.coarse #pExit{display:none}
+#pExit{display:none}   /* 내리기·복귀는 고정 버튼(#actFix)이 맡는다 · PC는 E 키도 그대로 */
 </style>
 
 <div id="boot"><h1 class="gt"><span class="rgb">RGB</span><span>가 사라진 세상</span></h1><div class="gten">In a World Without RGB…</div><div class="lb"><i id="bootBar"></i></div><div class="lt" id="bootT">도시를 깨우는 중</div><div class="lp">DIVIDE01</div></div>
@@ -1545,7 +1551,7 @@ function updateMLRS(dt){
     mlrs.pitch = clamp(mlrs.pitch + ((k('w') || k('arrowup') ? 1 : 0) - (k('s') || k('arrowdown') ? 1 : 0) - (Math.abs(joy.y) > .12 ? joy.y : 0))*.45*dt, MLRS_P[0], MLRS_P[1]);
     mlrs.turn.rotation.y = mlrs.yaw; mlrs.pod.rotation.x = -mlrs.pitch;
     mlrsAim(); mlrsRing.visible = true; mlrsRing.position.set(mlrsAimPt.x, mlrsAimPt.y + .15, mlrsAimPt.z); mlrsRing.scale.setScalar(1 + mlrsRange(mlrs.pitch)/120);
-    const st = mlrsStats(); setHTML('padInfo', `<span class="ml"><b>사거리</b> ${Math.round(st.R)}m</span><span class="ml"><b>바람</b> ${st.wind}</span><span class="ml"><b>탄속</b> ~${Math.round(st.v*3.6)}km/h · ${st.T.toFixed(1)}초</span><span class="ml"><b>명중률</b> ~${Math.round(st.acc*100)}%</span><span class="ml"><b>발사관</b> ${mlrs.tubes}/${MLRS_N}</span>`);
+    const st = mlrsStats(); setHTML('padInfo', `<span class="ml1">사거리 <b>${Math.round(st.R)}m</b> · ${st.wind === '잔잔' ? '바람 잔잔' : st.wind} · 탄속 <b>${Math.round(st.v*3.6)}km/h</b> · 명중 <b>~${Math.round(st.acc*100)}%</b></span>`);   // 발사관 수는 발포 버튼 아래
   } else mlrsRing.visible = false;
   if (mlrs.queue.length){   // 0.14초 간격으로 한 발씩
     const aim = mlrs.queue[0]; mlrs.turn.rotation.y += clamp(Math.atan2(Math.sin(Math.atan2(aim.x - S.mlrs.x, aim.z - S.mlrs.z) - mlrs.turn.rotation.y), Math.cos(Math.atan2(aim.x - S.mlrs.x, aim.z - S.mlrs.z) - mlrs.turn.rotation.y)), -4*dt, 4*dt);
@@ -2914,7 +2920,7 @@ function drawDroneHud(){
   // 투하 조준경: 드론 기준 위에서 본 원(앞이 위). 탄착점 · 폭발 반경 · 근처 몹 · 아지트 방향
   const R0 = Math.min(62, W*.15), ox = W - R0 - Math.max(70, W*.1) - 20, oy = Math.min(H - R0 - Math.max(150, H*.2), droneFree - R0 - 30), scale = R0/30, sn = Math.sin(drone.yaw), cs = Math.cos(drone.yaw);   // 오른쪽 아래(투하 버튼 위쪽), 가운데 패드와 겹치지 않게
   const toS = (x, z) => { const dx = x - drone.x, dz = z - drone.z, fwd = dx*sn + dz*cs, rt = -dx*cs + dz*sn; return [ox + rt*scale, oy - fwd*scale]; };   // 앞 = 위, 오른쪽 = 오른쪽
-  g.fillStyle = 'rgba(42,35,39,.72)'; g.beginPath(); g.arc(ox, oy, R0 + 6, 0, 6.283); g.fill();
+  g.fillStyle = 'rgba(42,35,39,.38)'; g.beginPath(); g.arc(ox, oy, R0 + 6, 0, 6.283); g.fill();
   g.strokeStyle = dim; g.lineWidth = 1; for (const r of [1, .5]){ g.beginPath(); g.arc(ox, oy, R0*r, 0, 6.283); g.stroke(); }
   line(ox - R0, oy, ox + R0, oy, '#4d4247'); line(ox, oy - R0, ox, oy + R0, '#4d4247');
   for (const m of mobs){ if (!m.active || m.dying || m.kind === 'g') continue; const [x, y] = toS(m.pos.x, m.pos.z); if (Math.hypot(x - ox, y - oy) > R0) continue; g.fillStyle = m.kind === 'c' ? fg : '#bab0ac'; const s = m.kind === 'c' ? 4 : 2; g.fillRect(x - s/2, y - s/2, s, s); }
@@ -3572,7 +3578,10 @@ function selectWeapon(i){
 let wHTML = '';
 function syncW(){
   const W = WEAPONS[wIdx];
-  const armed = hasW(W.k), name = mode === 'drone' ? '투하' : nadeAim ? '취소' : armed ? W.n : '맨손', info = mode === 'drone' ? `폭탄 ${ammo.nade}` : nadeAim ? `수류탄 ${ammo.nade}` : armed ? slotInfo({ k:W.k }) : '-';
+  const big = mode === 'gunner' || mode === 'drone' || ride && ride.kind === 'tank', armed = hasW(W.k);   // 탈것 무기일 땐 무기 이름 대신 동작 이름 + 남은 수/최대
+  const name = mode === 'drone' ? '투하' : mode === 'gunner' || ride && ride.kind === 'tank' ? '발포' : nadeAim ? '취소' : armed ? W.n : '맨손';
+  const info = mode === 'drone' ? `${ammo.nade}/${Math.max(ammo.nade, AMMO_FULL.nade)}` : mode === 'gunner' ? `${mlrs.tubes}/${MLRS_N}` : ride && ride.kind === 'tank' ? (tank.loaded ? '1/1' : '장전 중') : nadeAim ? `수류탄 ${ammo.nade}` : armed ? slotInfo({ k:W.k }) : '-';
+  $('fire').classList.toggle('vehw', big);
   const key = name + '|' + info; if (key !== wHTML){ wHTML = key; $('fireN').textContent = name; $('fireA').textContent = info; }
   $('fire').classList.toggle('aim', nadeAim);
 }
@@ -4377,9 +4386,11 @@ function frame(now){
     actEl.classList.toggle('off', !act.ok); actEl.hidden = false;
     if (pendingAct && act.ok) act.f();
   } else actEl.hidden = true;
+  if (TK.line && !talkOk(TK.key)){ talkQ.length = 0; TK.line = null; $('talkCh').hidden = true; $('talk').classList.remove('on'); $('talk').hidden = true; }   // 옥상에서 시작한 대화도 무전기 없이 거리로 나가면 끊긴다
   { const ft = !!TK.line && !titleOn && (level !== 'roof' && level !== 'camp' || !!ride) && mode !== 'sit';
     document.body.classList.toggle('fieldtalk', ft); if (ft) document.documentElement.style.setProperty('--fieldTop', (Math.max(hudBottom, $('status').getBoundingClientRect().bottom + 4) + 44) + 'px'); }
-  if (COARSE){   // 폰: 지금 할 수 있는 일을 고정 버튼에
+  syncW();   // 발포/투하 버튼의 남은 수 (바뀔 때만 DOM을 고친다)
+  {   // 지금 할 수 있는 일을 고정 버튼에 (v57부터 PC도 — E 키와 같은 동작)
     const fx = $('actFix'); let fl = null, fok = true;
     if (titleOn || state.over) fl = null;
     else if (ride) fl = '내리기';
