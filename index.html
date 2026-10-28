@@ -370,8 +370,8 @@ body.coarse .worldbtn{pointer-events:none}
 
 <div id="boot"><h1 class="gt"><span class="rgb">RGB</span><span>가 사라진 세상</span></h1><div class="gten">In a World Without RGB…</div><div class="lb"><i id="bootBar"></i></div><div class="lt" id="bootT">도시를 깨우는 중</div><div class="lp">DIVIDE01</div></div>
 <div id="title" hidden><h1 class="gt"><span class="rgb">RGB</span><span>가 사라진 세상</span></h1><div class="gten">In a World Without RGB…</div><div class="tsub">잊힌 도시에서 · 기억을 줍는다</div>
-  <nav><button class="btn" id="tContinue" type="button"><span>이어하기</span><small>기록 없음</small></button><button class="btn" id="tNew" type="button"><span>새로 시작</span><small>첫날 아침부터</small></button><button class="btn" id="tLoad" type="button"><span>기록 불러오기</span><small>슬롯 3칸</small></button></nav>
-  <div class="tfoot">v57 · DIVIDE01 · 개발 빌드</div><button class="btn" id="tFull" type="button" hidden>전체 화면</button></div>
+  <nav><button class="btn" id="tNew" type="button"><span>새로 시작</span><small>첫날 아침부터</small></button><button class="btn" id="tLoad" type="button"><span>기록 불러오기</span><small>기록 없음</small></button></nav>
+  <div class="tfoot">v58 · DIVIDE01 · 개발 빌드</div><button class="btn" id="tFull" type="button" hidden>전체 화면</button></div>
 <div id="saveM" class="modal" hidden role="dialog" aria-labelledby="saveMT"><h2 id="saveMT">기록</h2><p class="sh" id="saveMH"></p><div id="saveSlots" style="display:grid;gap:6px"></div><button class="btn close" id="saveClose" type="button">닫기</button></div>
 </head>
 <body>
@@ -2675,7 +2675,7 @@ function openSaveMenu(mode){
   $('saveMH').textContent = mode === 'save' ? '어느 칸에 남길까 · 같은 칸이면 덮어쓴다' : '어느 기록에서 이어갈까 · 그날 아침 옥상에서 시작한다';
   drawSlots(); $('saveM').hidden = false; const f = $('saveSlots').querySelector('.btn:not(:disabled)'); if (f) f.focus();
 }
-function closeSaveMenu(){ $('saveM').hidden = true; if (titleOn){ const c = $('tContinue'); (c.disabled ? $('tNew') : c).focus(); } }
+function closeSaveMenu(){ $('saveM').hidden = true; if (titleOn){ const c = $('tLoad'); (c.disabled ? $('tNew') : c).focus(); } }
 function drawSlots(){
   const box = $('saveSlots'); box.replaceChildren();
   for (let i=1;i<=SLOTS;i++){ const d = readSave(i), row = document.createElement('div'); row.className = 'slot';
@@ -2699,11 +2699,11 @@ function startFromSave(d, i){
 $('saveClose').addEventListener('click', closeSaveMenu);
 // 타이틀: 뒤에서는 도시가 천천히 돈다(게임 시간은 멈춤)
 let titleOn = false;
-function refreshTitle(){ const l = latestSave(), c = $('tContinue'); c.disabled = !l; c.querySelector('small').textContent = l ? `슬롯 ${l.i} · ${slotDesc(l.d)}` : '기록 없음'; }
-function showTitle(){ titleOn = true; document.body.classList.add('intro'); refreshTitle(); $('title').hidden = false; requestAnimationFrame(() => fitTitle && fitTitle()); const c = $('tContinue'); (c.disabled ? $('tNew') : c).focus(); }
+function refreshTitle(){ const l = latestSave(), c = $('tLoad');   // 이어하기는 없앴다 — 불러오기 메뉴 하나로(작은 글씨에 가장 최근 기록)
+  c.disabled = !l; c.querySelector('small').textContent = l ? `최근 · 슬롯 ${l.i} · ${l.d.st.day}일째` : '기록 없음'; }
+function showTitle(){ titleOn = true; document.body.classList.add('intro'); refreshTitle(); $('title').hidden = false; requestAnimationFrame(() => fitTitle && fitTitle()); const c = $('tLoad'); (c.disabled ? $('tNew') : c).focus(); }
 function hideTitle(){ titleOn = false; document.body.classList.remove('intro'); $('title').hidden = true; }
 $('tNew').addEventListener('click', () => { hideTitle(); setTimeout(() => talk('start'), 900); });
-$('tContinue').addEventListener('click', () => { const l = latestSave(); if (l) startFromSave(l.d, l.i); });
 $('tLoad').addEventListener('click', () => openSaveMenu('load'));
 $('pmLoad').addEventListener('click', () => { $('panel').hidden = true; openSaveMenu('load'); });
 $('pmTitle').addEventListener('click', e => { const b = e.currentTarget; if (b.dataset.arm){ location.reload(); return; } b.dataset.arm = '1'; b.textContent = '저장 안 한 진행은 사라짐 · 다시 누르기'; setTimeout(() => { delete b.dataset.arm; b.textContent = '타이틀로'; }, 3000); });
@@ -4222,7 +4222,7 @@ function toggleFull(){ if (document.fullscreenElement || document.webkitFullscre
 if (fsOK){ $('tFull').hidden = false; $('pmFull').hidden = false; }
 $('tFull').addEventListener('click', toggleFull); $('pmFull').addEventListener('click', toggleFull);
 // 폰에서 게임을 시작하면 전체 화면으로 (거절되면 그대로)
-for (const id of ['tNew', 'tContinue']) $(id).addEventListener('click', () => { if (COARSE && fsOK && !document.fullscreenElement) goFull(); });
+for (const id of ['tNew', 'tLoad']) $(id).addEventListener('click', () => { if (COARSE && fsOK && !document.fullscreenElement) goFull(); });
 addEventListener('fullscreenchange', () => setTimeout(() => { buildTargets(); fitTitle(); layoutHud(); }, 120));
 // 자동 화질 조절: 3초 평균이 24fps 아래면 내부 해상도를 한 단계(-120) 낮춘다. 최저 420. 사용자가 슬라이더를 만지면 끈다
 const perf = { on:true, acc:0, n:0, t0:performance.now(), cool:0 };
