@@ -17,3 +17,9 @@
 - PC: WASD 이동 · Space 가속 · Q/E 배럴롤 · 마우스 오른쪽 = 기총(누르고 있기) · 마우스 왼쪽 = 누르고 록온 → 떼면 미사일 발사 · P/Esc 메뉴
 - 모바일: 화면 왼쪽 드래그 이동 · GUN 버튼 기총 · MSL 버튼 누르고 록온 후 떼기
 - `pixel-wings/index.html` 단일 파일(three.js r128은 cdnjs에서 로드)
+
+## PIXEL ALESTE · 픽셀 알레스트
+
+[브라우저에서 플레이](https://hahyuck.github.io/rgb-world-play/pixel-aleste/)
+
+비트가 뒤덮은 하늘로 출격하는 9개 스테이지의 아케이드 비행 슈팅입니다. PC에서는 WASD로 이동하고, 마우스 왼쪽 버튼으로 미사일을 록온·발사하며, 오른쪽 버튼으로 기총을 연사합니다. 모바일은 화면 왼쪽을 드래그해 조종합니다.
