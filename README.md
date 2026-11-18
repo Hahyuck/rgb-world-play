@@ -14,5 +14,6 @@
 
 복셀 픽셀 룩 3인칭 아케이드 비행 슈팅 — 브라우저에서 바로 실행: https://hahyuck.github.io/rgb-world-play/pixel-wings/
 
-- 조작: 이동 = 화면 왼쪽 드래그 / 방향키·WASD · 기관포 = GUN 버튼 / Space·J · 미사일 = MSL 버튼 누르고 록온 후 떼기 / K·Shift
+- PC: WASD 이동 · Space 가속 · Q/E 배럴롤 · 마우스 오른쪽 = 기총(누르고 있기) · 마우스 왼쪽 = 누르고 록온 → 떼면 미사일 발사 · P/Esc 메뉴
+- 모바일: 화면 왼쪽 드래그 이동 · GUN 버튼 기총 · MSL 버튼 누르고 록온 후 떼기
 - `pixel-wings/index.html` 단일 파일(three.js r128은 cdnjs에서 로드)
