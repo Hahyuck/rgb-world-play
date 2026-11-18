@@ -111,6 +111,8 @@ body.flight-hints #hint{max-width:none;bottom:clamp(82px,14vh,118px);right:50%;t
 @media (prefers-reduced-motion:reduce){.film-dispatch,.film-signature{transition:none}}
 
 
+.victory-thanks{font-size:clamp(19px,4.8vw,30px);color:#fff3d7;letter-spacing:-.035em;word-break:keep-all}
+.victory-studio{margin:0 0 8px;color:#e9efee}.victory-studio b{color:#ffc382}
 .credit-window{
   --roll-height:clamp(76px,27vh,240px);
   position:relative;height:var(--roll-height);overflow:hidden;
@@ -146,9 +148,27 @@ body.film-flight-entry #hud{animation:power-up-hud .85s ease-out both}
   0%,18%{opacity:0}
   100%{opacity:1}
 }
+
+#victory-layer{position:fixed;inset:0;z-index:26;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(ellipse at center,#16222d,#05080c 80%);touch-action:manipulation}
+#victory-layer[hidden],#play-victory[hidden]{display:none}
+#victory-film{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 50%}
+#victory-subtitle{position:absolute;bottom:14%;max-width:88%;padding:3px 8px;color:#fff;
+  text-align:center;font:650 clamp(17px,2.5vw,35px)/1.4 system-ui;text-shadow:0 1px 3px #000,0 1px 7px #000;pointer-events:none}
+#victory-subtitle[hidden]{display:none}
+#skip-victory,#play-victory{position:absolute;border:1px solid #a5b0b780;background:#101c28cc;
+  color:#f8fafc;border-radius:2px;font:600 14px system-ui;padding:10px 16px;cursor:pointer}
+#skip-victory{right:max(4%,env(safe-area-inset-right));bottom:max(5%,env(safe-area-inset-bottom))}
+#play-victory{justify-self:center;align-self:center}
+@media(orientation:portrait){
+  #victory-film{object-fit:cover;object-position:var(--victory-pan,53.5%) 50%}
+  #victory-subtitle{bottom:max(16%,80px);font-size:clamp(19px,5vw,29px)}
+  #skip-victory{bottom:max(24px,env(safe-area-inset-bottom))}
+}
+
 </style>
 </head>
-<body><div id="film-layer" hidden><video id="opening-film" playsinline preload="metadata" aria-label="픽셀 알레스트 오프닝" src="assets/video/opening-2d05398be7a416cb.mp4"></video><div class="film-safe"><div class="film-dispatch">차원 균열 · 비트 침식 확산<small>서울　/　대전　/　부산</small></div><img class="film-signature" src="assets/graphics/pixel-aleste-logo-ba8411b6d8d1dcf7.png" alt="픽셀 알레스트"></div><button id="skip-opening">건너뛰기 ↗</button></div>
+<body><div id="victory-layer" hidden role="dialog" aria-modal="true" aria-label="임무 완료 시네마틱"><video id="victory-film" playsinline preload="none" aria-label="픽셀 알레스트 승리 영상" src="assets/video/victory-39a59ac854d8527b.mp4"></video><div id="victory-subtitle" hidden></div><button type="button" id="play-victory" hidden>영상 재생</button><button type="button" id="skip-victory">건너뛰기 ↗</button></div><div id="film-layer" hidden><video id="opening-film" playsinline preload="metadata" aria-label="픽셀 알레스트 오프닝" src="assets/video/opening-2d05398be7a416cb.mp4"></video><div class="film-safe"><div class="film-dispatch">차원 균열 · 비트 침식 확산<small>서울　/　대전　/　부산</small></div><img class="film-signature" src="assets/graphics/pixel-aleste-logo-ba8411b6d8d1dcf7.png" alt="픽셀 알레스트"></div><button id="skip-opening">건너뛰기 ↗</button></div>
 <audio id="game-music" preload="none"></audio>
 <canvas id="hud"></canvas>
 <button class="b" id="bGun" aria-label="GUN"><svg viewBox="0 0 24 24"><path d="M8 4v10M12 2v12M16 4v10"/><path d="M6 18h12" opacity=".5"/></svg><small>GUN</small></button>
@@ -159,6 +179,6 @@ body.film-flight-entry #hud{animation:power-up-hud .85s ease-out both}
 <div id="ov"><div class="card" id="card"></div></div>
 
 <script src="assets/vendor/three-r128-e88777b710dc240d.js"></script>
-<script src="assets/game/pixel-aleste-e3e93e538dcc11b6.js"></script>
+<script src="assets/game/pixel-aleste-9a76b70f58e3f05a.js"></script>
 </body>
 </html>
