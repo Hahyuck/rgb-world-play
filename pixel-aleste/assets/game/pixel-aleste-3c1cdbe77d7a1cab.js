@@ -1060,14 +1060,17 @@ skyline.material.onBeforeCompile=shader=>{
     vec2 low=horizon*.50+baseWorld*1.45-wxDrift*.00115;
     vec4 upper=texture2D(wxTile,high);
     vec4 lower=texture2D(wxTile,low+vec2(.23,.49));
+    vec4 erosion=texture2D(wxTile,low*3.8+lower.gr*.13-wxDrift*.00024);
+    float lowerDensity=lower.r+.24*(erosion.g-.50)+.10*(erosion.b-.50);
     float sheets=smoothstep(.22,.64,upper.r);
-    float curls=smoothstep(.31,.68,lower.r+.13*(lower.g-.5));
+    float curls=smoothstep(.31,.68,lowerDensity);
     float overhead=smoothstep(-.09,.12,dir.y);
     vec3 base=diffuseColor.rgb;
     vec3 middle=mix(vec3(.049,.073,.115),vec3(.34,.405,.49),upper.g);
-    vec3 scud=mix(vec3(.029,.047,.071),vec3(.22,.28,.36),smoothstep(.30,.67,lower.g));
+    float sideLight=clamp(.46+2.2*(lower.g-lower.r)+.46*(erosion.g-.5),0.,1.);
+    vec3 scud=mix(vec3(.029,.047,.071),vec3(.22,.28,.36),sideLight);
     // Grazing daylight picks up the weather shelf's torn lower lip.
-    scud+=vec3(.23,.155,.082)*(1.-smoothstep(.04,.18,abs(lower.r-.44)))*(1.-wxAmount*.65);
+    scud+=vec3(.15,.11,.073)*(1.-smoothstep(.035,.15,abs(lowerDensity-.44)))*(1.-wxAmount*.72);
     base=mix(base,base*vec3(.49,.64,.78),wxAmount*.76);
     base=mix(base,middle,overhead*sheets*wxAmount*.86);
     base=mix(base,scud,overhead*curls*wxAmount*.86);
@@ -1157,6 +1160,7 @@ const flightWater = (()=>{
   const uniforms={
     paWaterTime:{value:0},paWaterFlow:{value:new THREE.Vector2()},
     paWaterAir:{value:new THREE.Vector3()},paWaterSky:{value:null},
+    paCloudTile:skyWeather.wxTile,paCloudOffset:skyWeather.wxDrift,
     paSkyPlane:{value:new THREE.Vector4()},paHull:{value:Array.from({length:4},()=>new THREE.Vector4())}
   };
   const swell= `
@@ -1186,7 +1190,8 @@ const flightWater = (()=>{
     }
   `;
   const surface= `
-    uniform sampler2D paWaterSky;
+    uniform sampler2D paWaterSky,paCloudTile;
+    uniform vec2 paCloudOffset;
     uniform vec4 paSkyPlane,paHull[4];
     float paWash(vec2 p){
       float foam=0.;
@@ -1269,6 +1274,24 @@ const flightWater = (()=>{
           skyUv.y=clamp(skyUv.y,.42,.965);
           vec3 mirrored=texture2D(paWaterSky,skyUv).rgb;
           mirrored*=mirrored;
+          // The same two advected cloud decks visible above the horizon reflect on each facet.
+          vec2 skyRay=reflectedRay.xz/max(.16,reflectedRay.y+.20);
+          vec2 worldTile=cameraPosition.xz*.00038;
+          vec2 highCloud=texture2D(paCloudTile,skyRay*.36+worldTile-paCloudOffset*.00050).rg;
+          vec2 lowCloud=texture2D(paCloudTile,skyRay*.50+worldTile*1.45-paCloudOffset*.00115+vec2(.23,.49)).rg;
+          float storm=paWaterAir.y, rain=paWaterAir.z;
+          float highCover=storm*smoothstep(.22,.64,highCloud.r);
+          float lowCover=storm*smoothstep(.31,.68,lowCloud.r+.13*(lowCloud.g-.5));
+          vec3 upper=mix(vec3(.049,.073,.115),vec3(.34,.405,.49),highCloud.g);
+          vec3 lower=mix(vec3(.029,.047,.071),vec3(.22,.28,.36),smoothstep(.30,.67,lowCloud.g));
+          mirrored*=mix(vec3(1.),vec3(.49,.64,.78),storm*.76);
+          mirrored=mix(mix(mirrored,upper,highCover*.86),lower,lowCover*.86);
+          mirrored=mix(mirrored,vec3(.19,.25,.32),rain*.36*(1.-smoothstep(.02,.20,abs(reflectedRay.y-.025))));
+          // Thick rain screens out the unobstructed key light and spreads its most energetic highlights.
+          vec3 spec=reflectedLight.directSpecular+reflectedLight.indirectSpecular;
+          float screening=smoothstep(.28,.93,storm)*(.50+.50*rain);
+          float peak=max(spec.r,max(spec.g,spec.b));
+          outgoingLight-=spec*(1.-mix(1.,.34/(1.+3.4*peak),screening));
           float fres=.028+.78*pow(1.-max(dot(waveNormal,towardEye),0.),4.);
           float faceSky=smoothstep(.08,.58,-reflectedRay.z)*(1.-foam*.85);
           outgoingLight=mix(outgoingLight,mirrored*.86,fres*faceSky);
