@@ -166,11 +166,20 @@ body.film-flight-entry #hud{animation:power-up-hud .85s ease-out both}
   #skip-victory{bottom:max(24px,env(safe-area-inset-bottom))}
 }
 
+#route-recon{position:fixed;z-index:21;inset:auto max(4vw,env(safe-area-inset-right)) max(5vh,env(safe-area-inset-bottom)) max(4vw,env(safe-area-inset-left));display:flex;align-items:flex-end;justify-content:space-between;gap:12px;pointer-events:none;color:#f4f4e8}
+#route-recon[hidden]{display:none}
+.recon-location{padding:9px 15px;background:linear-gradient(100deg,#09171ee6,#09171eaa);border-left:3px solid #ffc973}
+.recon-location small,.recon-location strong{display:block}.recon-location small{font:650 11px/1.5 system-ui;color:#ffd18a}.recon-location strong{font:800 clamp(16px,2.6vw,29px)/1.35 system-ui}
+#route-recon nav{display:flex;gap:6px}#route-recon button{pointer-events:auto;padding:10px 13px;min-height:44px;border:1px solid #93a6aa88;background:#0a1a22e8;color:white;font:700 12px system-ui;border-radius:2px;cursor:pointer}
+@media(max-width:420px){#route-recon{inset-inline:12px}.recon-location{padding:7px 10px}#route-recon button{padding:8px 10px}}
 </style>
 </head>
 <body><div id="victory-layer" hidden role="dialog" aria-modal="true" aria-label="임무 완료 시네마틱"><video id="victory-film" playsinline preload="none" aria-label="픽셀 알레스트 승리 영상" src="assets/video/victory-39a59ac854d8527b.mp4"></video><div id="victory-subtitle" hidden></div><button type="button" id="play-victory" hidden>영상 재생</button><button type="button" id="skip-victory">건너뛰기 ↗</button></div><div id="film-layer" hidden><video id="opening-film" playsinline preload="metadata" aria-label="픽셀 알레스트 오프닝" src="assets/video/opening-2d05398be7a416cb.mp4"></video><div class="film-safe"><div class="film-dispatch">차원 균열 · 비트 침식 확산<small>서울　/　대전　/　부산</small></div><img class="film-signature" src="assets/graphics/pixel-aleste-logo-ba8411b6d8d1dcf7.png" alt="픽셀 알레스트"></div><button id="skip-opening">건너뛰기 ↗</button></div>
 <audio id="game-music" preload="none"></audio>
-<canvas id="hud"></canvas>
+<section id="route-recon" aria-label="항로 정찰" hidden>
+  <div class="recon-location" aria-live="polite"><small id="recon-count"></small><strong id="recon-name"></strong></div>
+  <nav aria-label="정찰 제어"><button id="recon-next" type="button">다음 지점</button><button id="recon-back" type="button">타이틀로</button></nav>
+</section><canvas id="hud"></canvas>
 <button class="b" id="bGun" aria-label="GUN"><svg viewBox="0 0 24 24"><path d="M8 4v10M12 2v12M16 4v10"/><path d="M6 18h12" opacity=".5"/></svg><small>GUN</small></button>
 <button class="b" id="bMsl" aria-label="MISSILE"><svg viewBox="0 0 24 24"><path d="M12 2l3 5v9l-3 2-3-2V7z"/><path d="M9 13l-3 4M15 13l3 4"/></svg><small>MSL <b id="mslN">8</b></small></button>
 <button class="b" id="bRush" aria-label="러시 발동"><small>RUSH</small></button>
@@ -179,6 +188,6 @@ body.film-flight-entry #hud{animation:power-up-hud .85s ease-out both}
 <div id="ov"><div class="card" id="card"></div></div>
 
 <script src="assets/vendor/three-r128-e88777b710dc240d.js"></script>
-<script src="assets/game/pixel-aleste-290c2d5ab6fd85b0.js"></script>
+<script src="assets/game/pixel-aleste-b368d3dc5cab0310.js"></script>
 </body>
 </html>
